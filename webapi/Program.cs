@@ -18,21 +18,23 @@ if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
     app.UseSwaggerUI();
+    
+    // add default data to database
+    app.MapGet("/api/default", async (AppContext db, HttpContext context) =>
+    {
+        db.Users.Add(new User {Name = "User1", Age = 16});
+        db.Users.Add(new User {Name = "User2", Age = 23});
+        db.Users.Add(new User {Name = "User3", Age = 56});
+        await db.SaveChangesAsync();
+
+        context.Response.StatusCode = 200;
+    });
 }
 
 // app.UseHttpsRedirection();
 app.UseAuthorization();
 app.MapControllers();
 
-// add default data to database
-app.MapGet("/api/default", async (AppContext db, HttpContext context) =>
-{
-    db.Users.Add(new User {Name = "User1", Age = 16});
-    db.Users.Add(new User {Name = "User2", Age = 23});
-    db.Users.Add(new User {Name = "User3", Age = 56});
-    await db.SaveChangesAsync();
 
-    context.Response.StatusCode = 200;
-});
 
 app.Run();
