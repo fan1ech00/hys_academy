@@ -18,18 +18,14 @@ public class UsersController : ControllerBase
     }
 
     [HttpGet]
-    public async Task<ActionResult<IEnumerable<User>>> Get()
+    public async Task<IEnumerable<User>> GetAllAsync()
     {
         var users = await _db.Users.ToArrayAsync();
-
-        if (users.Length == 0)
-            return NotFound();
-        
         return users;
     }
 
     [HttpGet("{id}")]
-    public async Task<ActionResult<User>> Get(long id)
+    public async Task<ActionResult<User>> GetAsync(long id)
     {
         var user = await _db.Users.FirstOrDefaultAsync(x => x.Id == id);
 
@@ -40,41 +36,40 @@ public class UsersController : ControllerBase
     }
 
     [HttpPost]
-    public async Task<ActionResult<User>> Post(User user)
+    public async Task<ActionResult<User>> AddAsync(User user)
     {
-        _db.Users.Add(user);
         // TODO: check fields of user or throw exception
+
+        _db.Users.Add(user);
         await _db.SaveChangesAsync();
 
-        return CreatedAtAction(nameof(Get), new { id = user.Id }, user);
+        return CreatedAtAction(nameof(GetAsync), new { id = user.Id }, user);
     }
 
-    [HttpPut("{id}")]
-    public async Task<ActionResult<User>> Put(long id, User user)
+    [HttpPut]
+    public async Task<ActionResult<User>> UpdateAsync(User user)
     {
-        if (id != user.Id)
-            return BadRequest();
-        
-        if (await _db.Users.AsNoTracking().FirstOrDefaultAsync(x => x.Id == id) is null)
-            return NotFound();
-        
         // TODO: check fields of user or throw exception
 
+        if (await _db.Users.AsNoTracking().FirstOrDefaultAsync(x => x.Id == user.Id) is null)
+            return NotFound();
+            // return await Add(user);
+        
         _db.Users.Update(user);
         await _db.SaveChangesAsync();
         return NoContent();
     }
 
     [HttpDelete("{id}")]
-    public async Task<ActionResult<User>> Delete(long id)
+    public async Task<ActionResult<User>> DeleteAsync(long id)
     {
         var user = await _db.Users.FirstOrDefaultAsync(x => x.Id == id);
         
-        if (user is null)
-            return NotFound();
-
-        _db.Users.Remove(user);
-        await _db.SaveChangesAsync();
+        if (user is not null)
+        {
+            _db.Users.Remove(user);
+            await _db.SaveChangesAsync();
+        }
         return NoContent();
     }
 }
