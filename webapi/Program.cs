@@ -6,7 +6,7 @@ var builder = WebApplication.CreateBuilder(args);
 
 var connection = builder.Configuration.GetConnectionString("DefaultConnection");
 
-builder.Services.AddControllers();
+builder.Services.AddControllers(options => options.SuppressAsyncSuffixInActionNames = false);
 // builder.Services.AddDbContext<AppContext>(options => options.UseSqlServer(connection));
 builder.Services.AddDbContext<AppContext>(options => options.UseInMemoryDatabase("hysdb"));
 builder.Services.AddEndpointsApiExplorer();
